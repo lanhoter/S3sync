@@ -2,7 +2,7 @@
 
 # Upload Object to S3 Bucket
 
-Write multiple dataframes into different or same spreadsheet into one excel then upload to S3 without any local modification.
+Write multiple dataframes into different or same spreadsheet into one excel in buffer then upload to S3 without any local modification.
 
 # TO RUN:
 
