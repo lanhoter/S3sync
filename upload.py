@@ -4,8 +4,7 @@ import openpyxl
 from openpyxl import load_workbook
 import pandas as pd
 from pandas import ExcelWriter
-from io import BytesIO
-
+import io
 
 # global variable
 bucket = ''
@@ -17,9 +16,9 @@ conn = boto3.client('s3', aws_access_key_id='aws_access_key_id', aws_secret_acce
 response = conn.list_buckets()
 
 
-def syncToS3():
+def syncExcelToS3():
     # python3 is using BytesIO
-    buffer = BytesIO()
+    buffer = io.BytesIO()
 
     df_1 = pd.DataFrame()
     df_2 = pd.DataFrame()
@@ -35,6 +34,20 @@ def syncToS3():
 
 
 
+def syncJsonToS3():
+    jsonBuffer = io.StringIO()
+
+    Cars = {'Brand': ['Honda Civic','Toyota Corolla','Ford Focus','Audi A4'],
+            'Price': [22000,25000,27000,35000]
+            }
+    df = pd.DataFrame(Cars,columns= ['Brand', 'Price'])
+    session = boto3.Session(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+    s3 = session.resource('s3')
+    df.to_json(outputBuffer, orient='values');
+    s3.Object(Bucket, 'PATH/TO/test.json').put(Body= jsonBuffer.getvalue())
+
+    
+    
 '''
 HELP Function
 Append a DataFrame [df] to existing Excel file [filename]
@@ -71,4 +84,7 @@ def append_df_to_excel(filename, df, sheet_name='Sheet1', startrow=None, truncat
     writer.save()
 
 if __name__ == '__main__':
-    syncToS3();
+    # append multiple dfs to different spreadsheets in one excel, then upload it to s3 using BytesIO
+    syncExcelToS3();
+    # create df, then upload it to s3 as a json file using StringIO
+    syncJsonToS3();
